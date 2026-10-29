@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: ./app/backend
+    image: k8s-demo-backend:1.0.0
+    environment:
+      APP_ENV: docker
+      APP_VERSION: 1.0.0
+    networks:
+      - app-net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./app/frontend
+    image: k8s-demo-frontend:1.0.0
+    ports:
+      - "127.0.0.1:8081:8081"
+    depends_on:
+      - backend
+    networks:
+      - app-net
+    restart: unless-stopped
+
+networks:
+  app-net:
+    driver: bridge

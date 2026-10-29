@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes DevOps Demo</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #38bdf8;
+        }
+
+        .value {
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background: #38bdf8;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h1>Kubernetes DevOps Demo</h1>
+
+        <p>Frontend: Nginx</p>
+        <p>Backend: Java 21 / Spring Boot / Tomcat</p>
+
+        <hr>
+
+        <h3>Backend Information</h3>
+
+        <p>Application: <span class="value" id="app">Loading...</span></p>
+        <p>Version: <span class="value" id="version">Loading...</span></p>
+        <p>Environment: <span class="value" id="environment">Loading...</span></p>
+        <p>Backend Hostname: <span class="value" id="hostname">Loading...</span></p>
+
+        <button onclick="loadInfo()">Refresh Backend Info</button>
+    </div>
+
+    <script>
+        async function loadInfo() {
+            try {
+                const response = await fetch('/api/info');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                document.getElementById('app').textContent = data.application;
+                document.getElementById('version').textContent = data.version;
+                document.getElementById('environment').textContent = data.environment;
+                document.getElementById('hostname').textContent = data.hostname;
+
+            } catch (error) {
+                console.error('Backend error:', error);
+                document.getElementById('app').textContent = 'Backend unavailable';
+            }
+        }
+
+        loadInfo();
+    </script>
+
+</body>
+</html>
