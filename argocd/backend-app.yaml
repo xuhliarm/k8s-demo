@@ -18,5 +18,8 @@ spec:
     namespace: backend
 
   syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
