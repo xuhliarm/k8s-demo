@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backend
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/xuhliarm/k8s-demo.git
+    targetRevision: main
+    path: helm/backend
+    helm:
+      releaseName: backend
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backend
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
