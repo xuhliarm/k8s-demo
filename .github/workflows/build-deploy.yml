@@ -1,0 +1,108 @@
+name: Build and Publish Docker Images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/**"
+      - ".github/workflows/build-deploy.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-deploy-main
+  cancel-in-progress: false
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: eu-north-1
+      ECR_REGISTRY: 069129260880.dkr.ecr.eu-north-1.amazonaws.com
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tag
+        run: |
+          echo "IMAGE_TAG=${GITHUB_SHA}" >> "$GITHUB_ENV"
+
+      - name: Build backend Docker image
+        run: |
+          docker build \
+            -t "$ECR_REGISTRY/k8s-demo-backend:$IMAGE_TAG" \
+            ./app/backend
+
+      - name: Build frontend Docker image
+        run: |
+          docker build \
+            -t "$ECR_REGISTRY/k8s-demo-frontend:$IMAGE_TAG" \
+            ./app/frontend
+
+      - name: Push backend Docker image
+        run: |
+          docker push "$ECR_REGISTRY/k8s-demo-backend:$IMAGE_TAG"
+
+      - name: Push frontend Docker image
+        run: |
+          docker push "$ECR_REGISTRY/k8s-demo-frontend:$IMAGE_TAG"
+
+      - name: Update Helm image tags
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          tag = os.environ["IMAGE_TAG"]
+
+          for name in ("backend", "frontend"):
+              path = Path(f"helm/{name}/values.yaml")
+              content = path.read_text()
+
+              updated, count = re.subn(
+                  r'(?m)^(\s{2}tag:\s*).*$',
+                  lambda match: f'{match.group(1)}"{tag}"',
+                  content,
+                  count=1,
+              )
+
+              if count != 1:
+                  raise RuntimeError(f"Could not update image tag in {path}")
+
+              path.write_text(updated)
+              print(f"Updated {path}: {tag}")
+          PY
+
+      - name: Commit updated Helm values
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add helm/backend/values.yaml helm/frontend/values.yaml
+
+          if git diff --cached --quiet; then
+            echo "No Helm changes to commit."
+            exit 0
+          fi
+
+          git commit -m "chore: update container images to ${IMAGE_TAG} [skip ci]"
+          git push origin HEAD:main
