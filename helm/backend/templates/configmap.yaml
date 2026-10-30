@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  labels:
+    app: backend
+
+data:
+  APP_ENV: {{ .Values.environment.APP_ENV | quote }}
+  APP_VERSION: {{ .Values.environment.APP_VERSION | quote }}
