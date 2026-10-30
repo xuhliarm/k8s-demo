@@ -1,0 +1,11 @@
+namespaces:
+  frontend: frontend
+  backend: backend
+  monitoring: monitoring
+
+networkPolicy:
+  enabled: true
+
+backend:
+  port: 8080
+  metricsPort: 8080
