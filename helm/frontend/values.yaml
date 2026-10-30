@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: 069129260880.dkr.ecr.eu-north-1.amazonaws.com/k8s-demo-frontend
-  tag: "1.0.0"
+  tag: "09ef30ac3ee235987ed53497c70fae271b55a3aa"
   pullPolicy: IfNotPresent
 
 service:
