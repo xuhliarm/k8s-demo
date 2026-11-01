@@ -239,3 +239,9 @@ override.tf.json
 *.pem
 *.key
 backups/
+
+# Local authentication files
+.htpasswd
+*.htpasswd
+kubeconfig
+kubeconfig.*
