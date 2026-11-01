@@ -40,3 +40,12 @@ helm upgrade --install monitoring \
 echo "Monitoring installation completed."
 
 kubectl get pods -n monitoring
+
+# Blackbox Exporter
+helm upgrade --install blackbox \
+  prometheus-community/prometheus-blackbox-exporter \
+  --namespace monitoring \
+  --wait --timeout 5m
+
+# Frontend/backend probes and alert rules
+kubectl apply -f monitoring/app-probes.yaml

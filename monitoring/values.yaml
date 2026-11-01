@@ -48,7 +48,7 @@ prometheus:
         medium: ""
 
 alertmanager:
-  enabled: false
+  enabled: true
 
 prometheusOperator:
   resources:
