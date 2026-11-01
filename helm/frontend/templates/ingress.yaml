@@ -6,13 +6,23 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+
+    # HTTPS + HTTP redirect
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+
+    # AWS ACM wildcard certificate
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-north-1:069129260880:certificate/59f31678-7ba1-4e28-805a-f054cc79f3f5
+
+    # Health checks
     alb.ingress.kubernetes.io/healthcheck-path: /
     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+
 spec:
   ingressClassName: alb
   rules:
-    - http:
+    - host: fe-k8s-demo.itlama.sk
+      http:
         paths:
           - path: /
             pathType: Prefix
