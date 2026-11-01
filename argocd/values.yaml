@@ -1,0 +1,9 @@
+# Argo CD configuration for k8s-demo
+
+server:
+  service:
+    type: ClusterIP
+
+configs:
+  params:
+    server.insecure: true

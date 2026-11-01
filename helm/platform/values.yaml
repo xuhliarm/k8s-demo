@@ -4,7 +4,7 @@ namespaces:
   monitoring: monitoring
 
 networkPolicy:
-  enabled: true
+  enabled: false
 
 backend:
   port: 8080
